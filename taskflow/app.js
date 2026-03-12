@@ -7,6 +7,12 @@ const searchInput = document.getElementById("search");
 
 let tasks = [];
 
+// Helpers
+function isDuplicateTask(text) {
+    const normalizedText = text.toLowerCase();
+    return tasks.some(task => task.text.toLowerCase() === normalizedText);
+}
+
 // Cargar tareas guardadas al iniciar
 document.addEventListener("DOMContentLoaded", function() {
     const savedTasks = localStorage.getItem("tasks");
@@ -22,15 +28,41 @@ form.addEventListener("submit", function(e){
     e.preventDefault();
 
     const taskText = input.value.trim();
-    if(taskText === "") return;
+    const priorityValue = priority.value;
+
+    // Validaciones básicas
+    if(taskText === ""){
+        alert("Por favor, ingresa una tarea.");
+        input.focus();
+        return;
+    }
+
+    if(taskText.length < 3){
+        alert("La tarea debe tener al menos 3 caracteres.");
+        input.focus();
+        return;
+    }
+
+    if(!priorityValue){
+        alert("Por favor, selecciona una prioridad.");
+        priority.focus();
+        return;
+    }
+
+    if(isDuplicateTask(taskText)){
+        alert("Esta tarea ya existe.");
+        input.focus();
+        return;
+    }
 
     const task = {
         text: taskText,
-        priority: priority.value
+        priority: priorityValue
     };
 
     createTask(task); // guarda automáticamente en tasks y storage
-    input.value = "";
+    form.reset();
+    input.focus();
 });
 
 // Crear tarea en el DOM
@@ -73,3 +105,6 @@ searchInput.addEventListener("input", function() {
     // Renderizar tareas filtradas
     filteredTasks.forEach(task => createTask(task, false));
 });
+
+// function that filters completed tasks from an array
+
