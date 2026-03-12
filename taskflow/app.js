@@ -1,6 +1,6 @@
 // Variables
 const form = document.getElementById("task-form");
-const input = document.getElementById("task-input");
+const taskInput = document.getElementById("task-input");
 const taskList = document.getElementById("task-list");
 const priority = document.getElementById("task-priority");
 const searchInput = document.getElementById("search");
@@ -14,20 +14,21 @@ function isDuplicateTask(text) {
 }
 
 // Cargar tareas guardadas al iniciar
-document.addEventListener("DOMContentLoaded", function() {
+function loadTasks(){
     const savedTasks = localStorage.getItem("tasks");
 
     if(savedTasks){
         tasks = JSON.parse(savedTasks);
         tasks.forEach(task => createTask(task, false)); // false: no duplicar en storage
     }
-});
+}
+document.addEventListener("DOMContentLoaded", loadTasks);
 
 // Añadir tarea
 form.addEventListener("submit", function(e){
     e.preventDefault();
 
-    const taskText = input.value.trim();
+    const taskText = taskInput.value.trim();
     const priorityValue = priority.value;
 
     // Validaciones básicas
@@ -79,7 +80,7 @@ function createTask(task, saveToStorage = true){
     deleteBtn.addEventListener("click", function(){
         li.remove();
         tasks = tasks.filter(t => t.text !== task.text);
-        localStorage.setItem("tasks", JSON.stringify(tasks));
+        saveTasks();
     });
 
     li.appendChild(span);
@@ -88,7 +89,7 @@ function createTask(task, saveToStorage = true){
 
     if(saveToStorage){
         tasks.push(task);
-        localStorage.setItem("tasks", JSON.stringify(tasks));
+        saveTasks();
     }
 }
 
@@ -108,3 +109,13 @@ searchInput.addEventListener("input", function() {
 
 // function that filters completed tasks from an array
 
+/**
+ * Filters completed tasks from an array.
+ * A completed task is identified by the property 'completed' set to true.
+ *
+ * @param {Array} taskArray - Array of task objects.
+ * @returns {Array} Array of completed task objects.
+ */
+function filterCompletedTasks(taskArray) {
+    return taskArray.filter(task => task.completed === true);
+}
