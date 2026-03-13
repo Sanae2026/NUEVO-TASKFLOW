@@ -85,6 +85,17 @@ function createTask(task, saveToStorage = true){
     const span = document.createElement("span");
     span.textContent = task.text + " (" + task.priority + ")";
 
+    const checkbox = document.createElement("input");
+checkbox.type = "checkbox";
+
+checkbox.addEventListener("change", function () {
+    if (checkbox.checked) {
+        span.style.textDecoration = "line-through";
+    } else {
+        span.style.textDecoration = "none";
+    }
+});
+
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Eliminar";
 
@@ -94,8 +105,10 @@ function createTask(task, saveToStorage = true){
         saveTasks();
     });
 
+    li.appendChild(checkbox);
     li.appendChild(span);
     li.appendChild(deleteBtn);
+    
     taskList.appendChild(li);
 
     if(saveToStorage){
