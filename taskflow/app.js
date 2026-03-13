@@ -4,6 +4,8 @@ const taskInput = document.getElementById("task-input");
 const taskList = document.getElementById("task-list");
 const priority = document.getElementById("task-priority");
 const searchInput = document.getElementById("search");
+const filterPriority = document.getElementById("filter-priority");
+const sortButton = document.getElementById("sort-tasks");
 
 let tasks = [];
 
@@ -24,25 +26,27 @@ function renderTasks(taskArray){
         createTask(task, false);
     });
 }
-// Cargar tareas guardadas al iniciar
+
+// Cargar tareas guardadas
 function loadTasks(){
     const savedTasks = localStorage.getItem("tasks");
 
     if(savedTasks){
         tasks = JSON.parse(savedTasks);
-        tasks.forEach(task => createTask(task, false)); // false: no duplicar en storage
+        renderTasks(tasks);
     }
 }
+
 document.addEventListener("DOMContentLoaded", loadTasks);
 
 // Añadir tarea
 form.addEventListener("submit", function(e){
+
     e.preventDefault();
 
     const taskText = taskInput.value.trim();
     const priorityValue = priority.value;
 
-    // Validaciones básicas
     if(taskText === ""){
         alert("Por favor, ingresa una tarea.");
         taskInput.focus();
@@ -56,7 +60,7 @@ form.addEventListener("submit", function(e){
     }
 
     if(!priorityValue){
-        alert("Por favor, selecciona una prioridad.");
+        alert("Selecciona una prioridad.");
         priority.focus();
         return;
     }
@@ -72,74 +76,123 @@ form.addEventListener("submit", function(e){
         priority: priorityValue
     };
 
-    createTask(task); // guarda automáticamente en tasks y storage
+    createTask(task);
     form.reset();
     taskInput.focus();
+
 });
 
-// Crear tarea en el DOM
+// Crear tarea
 function createTask(task, saveToStorage = true){
+
     const li = document.createElement("li");
     li.classList.add(task.priority);
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
 
     const span = document.createElement("span");
     span.textContent = task.text + " (" + task.priority + ")";
 
-    const checkbox = document.createElement("input");
-checkbox.type = "checkbox";
+    checkbox.addEventListener("change", function(){
 
-checkbox.addEventListener("change", function () {
-    if (checkbox.checked) {
-        span.style.textDecoration = "line-through";
-    } else {
-        span.style.textDecoration = "none";
-    }
-});
+        if(checkbox.checked){
+            span.style.textDecoration = "line-through";
+        }else{
+            span.style.textDecoration = "none";
+        }
+
+    });
+
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Editar";
+
+    editBtn.addEventListener("click", function(){
+
+        const newText = prompt("Editar tarea:", task.text);
+
+        if(newText && newText.trim() !== ""){
+            task.text = newText.trim();
+            span.textContent = task.text + " (" + task.priority + ")";
+            saveTasks();
+        }
+
+    });
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Eliminar";
 
     deleteBtn.addEventListener("click", function(){
+
         li.remove();
         tasks = tasks.filter(t => t.text !== task.text);
         saveTasks();
+
     });
 
     li.appendChild(checkbox);
     li.appendChild(span);
+    li.appendChild(editBtn);
     li.appendChild(deleteBtn);
-    
+
     taskList.appendChild(li);
 
     if(saveToStorage){
         tasks.push(task);
         saveTasks();
     }
+
 }
 
-// Búsqueda de tareas
-searchInput.addEventListener("input", function() {
+// Búsqueda
+searchInput.addEventListener("input", function(){
+
     const searchTerm = searchInput.value.trim().toLowerCase();
 
-
-
-    // Filtrar tareas
-    const filteredTasks = tasks.filter(task => task.text.toLowerCase().includes(searchTerm));
+    const filteredTasks = tasks.filter(task =>
+        task.text.toLowerCase().includes(searchTerm)
+    );
 
     renderTasks(filteredTasks);
 
-   
 });
 
-// function that filters completed tasks from an array
+// Filtrar por prioridad
+filterPriority.addEventListener("change", function(){
+
+    const value = filterPriority.value;
+
+    if(value === "all"){
+        renderTasks(tasks);
+    }else{
+        const filtered = tasks.filter(task => task.priority === value);
+        renderTasks(filtered);
+    }
+
+});
+
+// Ordenar por prioridad
+sortButton.addEventListener("click", function(){
+
+    const order = {
+        alta: 1,
+        media: 2,
+        baja: 3
+    };
+
+    tasks.sort((a,b) => order[a.priority] - order[b.priority]);
+
+    renderTasks(tasks);
+
+});
+
+// Filtrar tareas completadas
 
 /**
- * Filters completed tasks from an array.
- * A completed task is identified by the property 'completed' set to true.
- *
- * @param {Array} taskArray - Array of task objects.
- * @returns {Array} Array of completed task objects.
+ * Filters completed tasks from an array
+ * @param {Array} taskArray
+ * @returns {Array}
  */
-function filterCompletedTasks(taskArray) {
+function filterCompletedTasks(taskArray){
     return taskArray.filter(task => task.completed === true);
 }
