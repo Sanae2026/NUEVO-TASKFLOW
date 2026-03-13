@@ -13,6 +13,13 @@ function isDuplicateTask(text) {
     return tasks.some(task => task.text.toLowerCase() === normalizedText);
 }
 
+function renderTasks(taskArray){
+    taskList.innerHTML = "";
+
+    taskArray.forEach(task => {
+        createTask(task, false);
+    });
+}
 // Cargar tareas guardadas al iniciar
 function loadTasks(){
     const savedTasks = localStorage.getItem("tasks");
@@ -97,14 +104,14 @@ function createTask(task, saveToStorage = true){
 searchInput.addEventListener("input", function() {
     const searchTerm = searchInput.value.trim().toLowerCase();
 
-    // Limpiar la lista
-    taskList.innerHTML = "";
+
 
     // Filtrar tareas
     const filteredTasks = tasks.filter(task => task.text.toLowerCase().includes(searchTerm));
 
-    // Renderizar tareas filtradas
-    filteredTasks.forEach(task => createTask(task, false));
+    renderTasks(filteredTasks);
+
+   
 });
 
 // function that filters completed tasks from an array
@@ -118,4 +125,12 @@ searchInput.addEventListener("input", function() {
  */
 function filterCompletedTasks(taskArray) {
     return taskArray.filter(task => task.completed === true);
+}
+
+function renderTasks(taskArray){
+    taskList.innerHTML = "";
+
+    taskArray.forEach(task => {
+        createTask(task, false);
+    });
 }
