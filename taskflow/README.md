@@ -35,4 +35,4 @@ El proyecto ha sido desarrollado utilizando **HTML, CSS y JavaScript**, aplicand
 1. Clonar el repositorio:
 
 ```bash
-git clone https://github.com/Sanae2016/taskflow.git
+git clone https://github.com/Sanae2026/taskflow.git
