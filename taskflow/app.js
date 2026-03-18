@@ -73,7 +73,7 @@ function createTask(task, saveToStorage = true){
     taskText.textContent = task.text;
 
     const priorityLabel = document.createElement("span");
-    priorityLabel.classList.add("priority-label");
+    priorityLabel.classList.add("priority-label", task.priority);
     priorityLabel.textContent = task.priority;
 
     taskContainer.appendChild(taskText);
