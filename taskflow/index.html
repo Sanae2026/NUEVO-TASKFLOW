@@ -2,50 +2,124 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8">
-  <title>TaskFlow</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskFlow</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+darkMode: 'class'
+}
+</script>
+
 </head>
 
-<body>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex justify-center items-start pt-10">
 
-<div class="container">
+<div class="w-full max-w-md bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
 
-<h1>Mis Tareas</h1>
+<h1 class="text-2xl font-bold text-center text-gray-800 dark:text-white mb-4">
+Mis Tareas
+</h1>
 
-<form id="task-form">
+<button id="dark-toggle"
+class="mb-4 w-full bg-gray-800 text-white py-2 rounded hover:bg-gray-700">
+Modo oscuro
+</button>
 
-<input type="text" id="task-input" placeholder="Nueva tarea..." required>
+<form id="task-form" class="flex gap-2 mb-4">
 
-<select id="task-priority">
+<input
+type="text"
+id="task-input"
+placeholder="Nueva tarea..."
+required
+class="flex-1 border rounded p-2 dark:bg-gray-700 dark:text-white">
+
+<select
+id="task-priority"
+class="border rounded p-2 dark:bg-gray-700 dark:text-white">
+
 <option value="baja">Baja</option>
 <option value="media">Media</option>
 <option value="alta">Alta</option>
+
 </select>
 
-<button type="submit">Añadir</button>
+<button
+type="submit"
+class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+Añadir
+</button>
 
 </form>
 
-<input type="text" id="search" placeholder="Buscar tarea...">
+<input
+type="text"
+id="search"
+placeholder="Buscar tarea..."
+class="w-full border rounded p-2 mb-4 dark:bg-gray-700 dark:text-white">
 
-<select id="filter-priority">
+<select
+id="filter-priority"
+class="w-full border rounded p-2 mb-4 dark:bg-gray-700 dark:text-white">
+
 <option value="all">Todas las prioridades</option>
 <option value="alta">Alta</option>
 <option value="media">Media</option>
 <option value="baja">Baja</option>
+
 </select>
 
-<button id="sort-tasks">Ordenar por prioridad</button>
+<button
+id="sort-tasks"
+class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 mb-4">
+Ordenar por prioridad
+</button>
 
-<ul id="task-list"></ul>
+<ul id="task-list" class="space-y-2"></ul>
 
-<p id="task-counter">Total de tareas: 0</p>
+<p
+id="task-counter"
+class="text-center text-gray-700 dark:text-gray-300 mt-4">
+Total de tareas: 0
+</p>
 
 </div>
 
 <script src="app.js"></script>
+
+<script>
+
+const darkToggle = document.getElementById("dark-toggle");
+
+function loadDarkMode(){
+
+const darkMode = localStorage.getItem("darkMode");
+
+if(darkMode === "enabled"){
+document.documentElement.classList.add("dark");
+}
+
+}
+
+loadDarkMode();
+
+darkToggle.addEventListener("click", function(){
+
+document.documentElement.classList.toggle("dark");
+
+if(document.documentElement.classList.contains("dark")){
+localStorage.setItem("darkMode","enabled");
+}else{
+localStorage.setItem("darkMode","disabled");
+}
+
+});
+
+</script>
 
 </body>
 </html>
