@@ -1,3 +1,7 @@
+*{
+    box-sizing: border-box;
+}
+
 body{
     font-family: Arial, sans-serif;
     background-color: #f4f6f8;
@@ -11,7 +15,8 @@ body{
     background:white;
     padding:30px;
     border-radius:10px;
-    width:400px;
+    width:100%;
+    max-width:400px;
     box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
@@ -26,11 +31,12 @@ form{
     margin-bottom:20px;
 }
 
-input{
+input, select{
     flex:1;
     padding:10px;
     border:1px solid #ccc;
     border-radius:6px;
+    width:100%;
 }
 
 button{
@@ -40,6 +46,7 @@ button{
     background-color:#4CAF50;
     color:white;
     font-weight:bold;
+    cursor:pointer;
 }
 
 button:hover{
@@ -72,4 +79,26 @@ li button{
 
 li button:hover{
     background:#e63939;
+}
+
+/* Responsive para celulares */
+
+@media (max-width:600px){
+
+body{
+    padding:20px;
+}
+
+.container{
+    padding:20px;
+}
+
+form{
+    flex-direction:column;
+}
+
+button{
+    width:100%;
+}
+
 }
