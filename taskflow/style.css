@@ -116,3 +116,18 @@ button{
     margin-top:4px;
     width:fit-content;
 }
+
+.priority-label.alta{
+    background:#ff6b6b;
+    color:white;
+}
+
+.priority-label.media{
+    background:#ffd93d;
+    color:#333;
+}
+
+.priority-label.baja{
+    background:#6bcf63;
+    color:white;
+}
