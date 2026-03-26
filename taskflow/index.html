@@ -28,12 +28,14 @@ Modo oscuro
 
 <form id="task-form" class="flex flex-col sm:flex-row gap-2 mb-4">
 <input type="text" id="task-input" placeholder="Nueva tarea..." required
-class="w-full sm:flex-1 border rounded p-2 dark:bg-gray-700 dark:text-white">
+class="w-full sm:flex-1 border rounded p-2 dark:bg-gray-700 dark:text-white break-words">
+
 <select id="task-priority" class="border rounded p-2 dark:bg-gray-700 dark:text-white">
 <option value="baja">Baja</option>
 <option value="media">Media</option>
 <option value="alta">Alta</option>
 </select>
+
 <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
 Añadir
 </button>
@@ -42,7 +44,6 @@ Añadir
 <input type="text" id="search" placeholder="Buscar tarea..."
 class="w-full border rounded p-2 mb-4 dark:bg-gray-700 dark:text-white">
 
-<!-- Filtrado -->
 <div class="flex flex-col sm:flex-row gap-2 mb-4">
 <select id="filter-priority" class="w-full border rounded p-2 dark:bg-gray-700 dark:text-white">
 <option value="all">Todas las prioridades</option>
@@ -64,7 +65,6 @@ class="w-full border rounded p-2 mb-4 dark:bg-gray-700 dark:text-white">
 </select>
 </div>
 
-<!-- Botones acciones -->
 <div class="flex flex-col gap-2 mb-4">
 <button id="sort-tasks" class="w-full bg-blue-500 text-white py-2 px-3 rounded hover:bg-blue-600">
 Ordenar por prioridad
@@ -79,7 +79,6 @@ Borrar tareas completadas
 
 <ul id="task-list" class="space-y-2"></ul>
 
-<!-- Estadísticas -->
 <div class="mt-4 border-t pt-3 text-center text-gray-700 dark:text-gray-300">
 <p id="stats-total">Total: 0</p>
 <p id="stats-pending">Pendientes: 0</p>
@@ -88,7 +87,6 @@ Borrar tareas completadas
 
 </div>
 
-<!-- Footer -->
 <footer class="w-full mt-6 text-center py-4 text-gray-400 dark:text-gray-500 text-sm">
 Sanae 2026
 </footer>
@@ -97,20 +95,16 @@ Sanae 2026
 
 <script>
 const darkToggle = document.getElementById("dark-toggle");
-
 function loadDarkMode(){
     const darkMode = localStorage.getItem("darkMode");
     if(darkMode === "enabled") document.documentElement.classList.add("dark");
 }
 loadDarkMode();
-
 darkToggle.addEventListener("click", function(){
     document.documentElement.classList.toggle("dark");
     if(document.documentElement.classList.contains("dark")){
         localStorage.setItem("darkMode","enabled");
-    }else{
-        localStorage.setItem("darkMode","disabled");
-    }
+    } else { localStorage.setItem("darkMode","disabled"); }
 });
 </script>
 
