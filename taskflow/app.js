@@ -8,19 +8,28 @@ const taskCounter = document.getElementById("task-counter");
 const sortButton = document.getElementById("sort-tasks");
 const filterPriority = document.getElementById("filter-priority");
 
+const filterStatus = document.getElementById("filter-status");
+const completeAllBtn = document.getElementById("complete-all");
+const deleteCompletedBtn = document.getElementById("delete-completed");
+
 let tasks = [];
 
-// Guardar tareas en localStorage
+// Guardar tareas
 function saveTasks(){
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
 // Actualizar contador
 function updateCounter(){
-    taskCounter.textContent = "Total de tareas: " + tasks.length;
+
+    const pending = tasks.filter(t => !t.completed).length;
+
+    taskCounter.textContent =
+        "Pendientes: " + pending + " | Total: " + tasks.length;
+
 }
 
-// Cargar tareas guardadas
+// Cargar tareas
 function loadTasks(){
 
     const savedTasks = localStorage.getItem("tasks");
@@ -50,7 +59,8 @@ form.addEventListener("submit", function(e){
 
     const task = {
         text: taskText,
-        priority: priority.value
+        priority: priority.value,
+        completed: false
     };
 
     createTask(task);
@@ -59,12 +69,16 @@ form.addEventListener("submit", function(e){
 
 });
 
-// Crear tarea en el DOM
+// Crear tarea
 function createTask(task, saveToStorage = true){
 
 const li = document.createElement("li");
 
 li.className = "flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-3 rounded shadow";
+
+if(task.completed){
+li.classList.add("opacity-50");
+}
 
 const taskContainer = document.createElement("div");
 taskContainer.className = "flex flex-col";
@@ -108,7 +122,14 @@ completeBtn.className =
 "bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600";
 
 completeBtn.addEventListener("click", function(){
+
+task.completed = !task.completed;
+
 li.classList.toggle("opacity-50");
+
+saveTasks();
+updateCounter();
+
 });
 
 // BOTÓN EDITAR
@@ -140,7 +161,9 @@ deleteBtn.className =
 deleteBtn.addEventListener("click", function(){
 
 li.remove();
-tasks = tasks.filter(t => t.text !== task.text);
+
+tasks = tasks.filter(t => t !== task);
+
 saveTasks();
 updateCounter();
 
@@ -165,51 +188,102 @@ updateCounter();
 
 }
 
-// Búsqueda
+// BÚSQUEDA
 searchInput.addEventListener("input", function(){
 
-    const searchTerm = searchInput.value.trim().toLowerCase();
+const searchTerm = searchInput.value.toLowerCase();
 
-    taskList.innerHTML = "";
+taskList.innerHTML = "";
 
-    const filteredTasks = tasks.filter(task =>
-        task.text.toLowerCase().includes(searchTerm)
-    );
+const filteredTasks = tasks.filter(task =>
+task.text.toLowerCase().includes(searchTerm)
+);
 
-    filteredTasks.forEach(task => createTask(task, false));
+filteredTasks.forEach(task => createTask(task, false));
 
 });
 
-// Ordenar por prioridad
+// ORDENAR POR PRIORIDAD
 sortButton.addEventListener("click", function(){
 
-    const order = {
-        alta: 1,
-        media: 2,
-        baja: 3
-    };
+const order = {
+alta: 1,
+media: 2,
+baja: 3
+};
 
-    tasks.sort((a,b) => order[a.priority] - order[b.priority]);
+tasks.sort((a,b) => order[a.priority] - order[b.priority]);
 
-    taskList.innerHTML = "";
+taskList.innerHTML = "";
 
-    tasks.forEach(task => createTask(task, false));
+tasks.forEach(task => createTask(task, false));
 
 });
 
 // FILTRAR POR PRIORIDAD
 filterPriority.addEventListener("change", function(){
 
-    const selected = filterPriority.value;
+const selected = filterPriority.value;
 
-    taskList.innerHTML = "";
+taskList.innerHTML = "";
 
-    let filteredTasks = tasks;
+let filteredTasks = tasks;
 
-    if(selected !== "all"){
-        filteredTasks = tasks.filter(task => task.priority === selected);
-    }
+if(selected !== "all"){
+filteredTasks = tasks.filter(task => task.priority === selected);
+}
 
-    filteredTasks.forEach(task => createTask(task, false));
+filteredTasks.forEach(task => createTask(task, false));
+
+});
+
+// FILTRAR POR ESTADO
+filterStatus.addEventListener("change", function(){
+
+const status = filterStatus.value;
+
+taskList.innerHTML = "";
+
+let filteredTasks = tasks;
+
+if(status === "pending"){
+filteredTasks = tasks.filter(task => !task.completed);
+}
+
+if(status === "completed"){
+filteredTasks = tasks.filter(task => task.completed);
+}
+
+filteredTasks.forEach(task => createTask(task, false));
+
+});
+
+// MARCAR TODAS COMPLETADAS
+completeAllBtn.addEventListener("click", function(){
+
+tasks.forEach(task => task.completed = true);
+
+saveTasks();
+
+taskList.innerHTML = "";
+
+tasks.forEach(task => createTask(task, false));
+
+updateCounter();
+
+});
+
+// BORRAR COMPLETADAS
+deleteCompletedBtn.addEventListener("click", function(){
+
+tasks = tasks.filter(task => !task.completed);
+
+saveTasks();
+
+taskList.innerHTML = "";
+
+tasks.forEach(task => createTask(task, false));
+
+updateCounter();
 
 });
