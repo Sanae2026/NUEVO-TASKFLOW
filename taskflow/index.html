@@ -7,7 +7,6 @@
 <title>TaskFlow</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-
 <script>
 tailwind.config = { darkMode: 'class' }
 </script>
@@ -28,16 +27,13 @@ Modo oscuro
 </button>
 
 <form id="task-form" class="flex flex-col sm:flex-row gap-2 mb-4">
-
-<input type="text" id="task-input" placeholder="Nueva tarea..."
-required class="w-full sm:flex-1 border rounded p-2 dark:bg-gray-700 dark:text-white">
-
+<input type="text" id="task-input" placeholder="Nueva tarea..." required
+class="w-full sm:flex-1 border rounded p-2 dark:bg-gray-700 dark:text-white">
 <select id="task-priority" class="border rounded p-2 dark:bg-gray-700 dark:text-white">
 <option value="baja">Baja</option>
 <option value="media">Media</option>
 <option value="alta">Alta</option>
 </select>
-
 <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
 Añadir
 </button>
@@ -46,42 +42,53 @@ Añadir
 <input type="text" id="search" placeholder="Buscar tarea..."
 class="w-full border rounded p-2 mb-4 dark:bg-gray-700 dark:text-white">
 
-<select id="filter-status" class="w-full border rounded p-2 mb-4 dark:bg-gray-700 dark:text-white">
-<option value="all">Todas</option>
-<option value="pending">Pendientes</option>
-<option value="completed">Completadas</option>
-</select>
-
-<select id="filter-priority" class="w-full border rounded p-2 mb-4 dark:bg-gray-700 dark:text-white">
+<!-- Filtrado -->
+<div class="flex flex-col sm:flex-row gap-2 mb-4">
+<select id="filter-priority" class="w-full border rounded p-2 dark:bg-gray-700 dark:text-white">
 <option value="all">Todas las prioridades</option>
 <option value="alta">Alta</option>
 <option value="media">Media</option>
 <option value="baja">Baja</option>
 </select>
 
-<button id="sort-tasks" class="w-full bg-blue-500 text-white py-2 px-3 rounded hover:bg-blue-600 mb-2">
+<select id="filter-status" class="w-full border rounded p-2 dark:bg-gray-700 dark:text-white">
+<option value="all">Todas</option>
+<option value="pending">Pendientes</option>
+<option value="completed">Completadas</option>
+</select>
+
+<select id="sort-alpha" class="w-full border rounded p-2 dark:bg-gray-700 dark:text-white">
+<option value="none">Orden alfabético</option>
+<option value="asc">A → Z</option>
+<option value="desc">Z → A</option>
+</select>
+</div>
+
+<!-- Botones acciones -->
+<div class="flex flex-col gap-2 mb-4">
+<button id="sort-tasks" class="w-full bg-blue-500 text-white py-2 px-3 rounded hover:bg-blue-600">
 Ordenar por prioridad
 </button>
-
-<button id="complete-all" class="w-full bg-green-600 text-white py-2 px-3 rounded hover:bg-green-700 mb-2">
+<button id="complete-all" class="w-full bg-green-600 text-white py-2 px-3 rounded hover:bg-green-700">
 Marcar todas como completadas
 </button>
-
-<button id="delete-completed" class="w-full bg-red-600 text-white py-2 px-3 rounded hover:bg-red-700 mb-4">
+<button id="delete-completed" class="w-full bg-red-600 text-white py-2 px-3 rounded hover:bg-red-700">
 Borrar tareas completadas
 </button>
+</div>
 
 <ul id="task-list" class="space-y-2"></ul>
 
-<div class="mt-4 border-t pt-3">
-<p id="task-counter" class="text-center text-gray-700 dark:text-gray-300">
-Pendientes: 0 | Total: 0
-</p>
+<!-- Estadísticas -->
+<div class="mt-4 border-t pt-3 text-center text-gray-700 dark:text-gray-300">
+<p id="stats-total">Total: 0</p>
+<p id="stats-pending">Pendientes: 0</p>
+<p id="stats-completed">Completadas: 0</p>
 </div>
 
 </div>
 
-<!-- FOOTER / Marca de agua -->
+<!-- Footer -->
 <footer class="w-full mt-6 text-center py-4 text-gray-400 dark:text-gray-500 text-sm">
 Sanae 2026
 </footer>
