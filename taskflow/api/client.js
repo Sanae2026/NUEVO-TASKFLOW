@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:3000/api/v1/tasks';
+const BASE = 'https://taskflow-e7rn-faxe7rtso-sanae2026s-projects.vercel.app/api/v1/tasks';
 
 export async function getTasks() {
   const res = await fetch(BASE);
