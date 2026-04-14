@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskFlow</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { darkMode: 'class' }
+</script>
+<style>
+  .task-text {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    min-width: 0;
+  }
+</style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col items-center pt-4 sm:pt-10 px-3">
+
+<div class="w-full max-w-2xl bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-md">
+  <h1 class="text-2xl font-bold text-center text-gray-800 dark:text-white mb-4">Mis Tareas</h1>
+
+  <button id="dark-toggle" class="mb-4 w-full bg-gray-800 text-white py-2 rounded hover:bg-gray-700">
+    Modo oscuro
+  </button>
+
+  <form id="task-form" class="flex flex-col sm:flex-row gap-2 mb-4">
+    <input type="text" id="task-input" placeholder="Nueva tarea..." required
+      class="w-full sm:flex-1 border rounded p-2 dark:bg-gray-700 dark:text-white min-w-0">
+    <select id="task-priority" class="border rounded p-2 dark:bg-gray-700 dark:text-white">
+      <option value="baja">Baja</option>
+      <option value="media">Media</option>
+      <option value="alta">Alta</option>
+    </select>
+    <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+      Añadir
+    </button>
+  </form>
+
+  <input type="text" id="search" placeholder="Buscar tarea..."
+    class="w-full border rounded p-2 mb-4 dark:bg-gray-700 dark:text-white">
+
+  <div class="flex flex-col sm:flex-row gap-2 mb-4">
+    <select id="filter-priority" class="w-full border rounded p-2 dark:bg-gray-700 dark:text-white">
+      <option value="all">Todas las prioridades</option>
+      <option value="alta">Alta</option>
+      <option value="media">Media</option>
+      <option value="baja">Baja</option>
+    </select>
+    <select id="filter-status" class="w-full border rounded p-2 dark:bg-gray-700 dark:text-white">
+      <option value="all">Todas</option>
+      <option value="pending">Pendientes</option>
+      <option value="completed">Completadas</option>
+    </select>
+    <select id="sort-alpha" class="w-full border rounded p-2 dark:bg-gray-700 dark:text-white">
+      <option value="none">Orden alfabético</option>
+      <option value="asc">A → Z</option>
+      <option value="desc">Z → A</option>
+    </select>
+  </div>
+
+  <div class="flex flex-col gap-2 mb-4">
+    <button id="sort-tasks" class="w-full bg-blue-500 text-white py-2 px-3 rounded hover:bg-blue-600">
+      Ordenar por prioridad
+    </button>
+    <button id="complete-all" class="w-full bg-green-600 text-white py-2 px-3 rounded hover:bg-green-700">
+      Marcar todas como completadas
+    </button>
+    <button id="delete-completed" class="w-full bg-red-600 text-white py-2 px-3 rounded hover:bg-red-700">
+      Borrar tareas completadas
+    </button>
+  </div>
+
+  <ul id="task-list" class="space-y-2"></ul>
+
+  <div class="mt-4 border-t pt-3 text-center text-gray-700 dark:text-gray-300">
+    <p id="stats-total">Total: 0</p>
+    <p id="stats-pending">Pendientes: 0</p>
+    <p id="stats-completed">Completadas: 0</p>
+  </div>
+</div>
+
+<footer class="w-full text-center py-4 text-gray-400 dark:text-gray-500 text-sm fixed bottom-0 left-0 bg-gray-100 dark:bg-gray-900">
+  Sanae 2026
+</footer>
+
+<script type="module">
+  import { getTasks, createTask, deleteTask } from './api/client.js';
+
+  const BASE = 'http://localhost:3000/api/v1/tasks';
+
+  const form = document.getElementById("task-form");
+  const taskInput = document.getElementById("task-input");
+  const taskList = document.getElementById("task-list");
+  const priority = document.getElementById("task-priority");
+  const searchInput = document.getElementById("search");
+  const filterPriority = document.getElementById("filter-priority");
+  const filterStatus = document.getElementById("filter-status");
+  const sortAlpha = document.getElementById("sort-alpha");
+  const sortButton = document.getElementById("sort-tasks");
+  const completeAllBtn = document.getElementById("complete-all");
+  const deleteCompletedBtn = document.getElementById("delete-completed");
+  const statsTotal = document.getElementById("stats-total");
+  const statsPending = document.getElementById("stats-pending");
+  const statsCompleted = document.getElementById("stats-completed");
+  const darkToggle = document.getElementById("dark-toggle");
+
+  let tasks = [];
+
+  function updateStats() {
+    statsTotal.textContent = "Total: " + tasks.length;
+    statsPending.textContent = "Pendientes: " + tasks.filter(t => !t.completed).length;
+    statsCompleted.textContent = "Completadas: " + tasks.filter(t => t.completed).length;
+  }
+
+  function setLoading(active) {
+    taskList.innerHTML = active ? '<li class="text-center text-gray-500 py-4">Cargando tareas...</li>' : '';
+  }
+
+  function showError(msg) {
+    taskList.innerHTML = `<li class="text-center text-red-500 py-4">${msg}</li>`;
+  }
+
+  async function loadTasks() {
+    setLoading(true);
+    try {
+      const serverTasks = await getTasks();
+      tasks = serverTasks.map(t => ({
+        id: t.id,
+        text: t.titulo,
+        priority: t.prioridad || 'baja',
+        completed: t.completada
+      }));
+      setLoading(false);
+      applyFilters();
+      updateStats();
+    } catch {
+      showError('No se pudo conectar al servidor. ¿Está arrancado?');
+    }
+  }
+
+  function createTaskElement(task) {
+    const li = document.createElement("li");
+    li.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-gray-100 dark:bg-gray-700 p-3 rounded shadow";
+    if (task.completed) li.classList.add("opacity-50");
+
+    const container = document.createElement("div");
+    container.className = "flex flex-col break-words max-w-full";
+
+    const span = document.createElement("span");
+    span.textContent = task.text;
+    span.className = "text-gray-800 dark:text-white font-medium break-words";
+
+    const label = document.createElement("span");
+    label.textContent = task.priority || 'baja';
+    const color = task.priority === "alta" ? "bg-red-500" :
+                  task.priority === "media" ? "bg-yellow-400 text-black" : "bg-green-500";
+    label.className = "text-xs text-white px-2 py-1 rounded w-fit mt-1 " + color;
+
+    container.appendChild(span);
+    container.appendChild(label);
+
+    const buttons = document.createElement("div");
+    buttons.className = "flex gap-2 flex-wrap justify-start";
+
+    const completeBtn = document.createElement("button");
+    completeBtn.textContent = "✔";
+    completeBtn.className = "bg-blue-500 text-white px-3 py-2 text-sm rounded hover:bg-blue-600";
+    completeBtn.addEventListener("click", () => {
+      task.completed = !task.completed;
+      li.classList.toggle("opacity-50");
+      updateStats();
+    });
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Eliminar";
+    deleteBtn.className = "bg-red-500 text-white px-3 py-2 text-sm rounded hover:bg-red-600";
+    deleteBtn.addEventListener("click", async () => {
+      try {
+        await deleteTask(task.id);
+        tasks = tasks.filter(t => t.id !== task.id);
+        li.remove();
+        updateStats();
+      } catch {
+        showError('Error al eliminar la tarea.');
+      }
+    });
+
+    buttons.appendChild(completeBtn);
+    buttons.appendChild(deleteBtn);
+    li.appendChild(container);
+    li.appendChild(buttons);
+    return li;
+  }
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const text = taskInput.value.trim();
+    if (!text) return;
+    try {
+      const nueva = await createTask(text, priority.value);
+      tasks.push({
+        id: nueva.id,
+        text: nueva.titulo,
+        priority: nueva.prioridad,
+        completed: nueva.completada
+      });
+      taskInput.value = "";
+      applyFilters();
+      updateStats();
+    } catch {
+      showError('Error al crear la tarea. Inténtalo de nuevo.');
+    }
+  });
+
+  function applyFilters() {
+    const term = searchInput.value.toLowerCase();
+    const status = filterStatus.value;
+    const prio = filterPriority.value;
+    const alpha = sortAlpha.value;
+
+    let filtered = tasks.filter(task => {
+      let ok = true;
+      if (term) ok = task.text.toLowerCase().includes(term);
+      if (ok && status !== "all") ok = status === "pending" ? !task.completed : task.completed;
+      if (ok && prio !== "all") ok = task.priority === prio;
+      return ok;
+    });
+
+    if (alpha === "asc") filtered.sort((a, b) => a.text.localeCompare(b.text));
+    if (alpha === "desc") filtered.sort((a, b) => b.text.localeCompare(a.text));
+
+    taskList.innerHTML = "";
+    filtered.forEach(task => taskList.appendChild(createTaskElement(task)));
+  }
+
+  searchInput.addEventListener("input", applyFilters);
+  filterPriority.addEventListener("change", applyFilters);
+  filterStatus.addEventListener("change", applyFilters);
+  sortAlpha.addEventListener("change", applyFilters);
+
+  sortButton.addEventListener("click", () => {
+    const order = { alta: 1, media: 2, baja: 3 };
+    tasks.sort((a, b) => order[a.priority] - order[b.priority]);
+    applyFilters();
+  });
+
+  completeAllBtn.addEventListener("click", () => {
+    tasks.forEach(t => t.completed = true);
+    applyFilters();
+    updateStats();
+  });
+
+  deleteCompletedBtn.addEventListener("click", async () => {
+    const completadas = tasks.filter(t => t.completed);
+    for (const t of completadas) {
+      try { await deleteTask(t.id); } catch {}
+    }
+    tasks = tasks.filter(t => !t.completed);
+    applyFilters();
+    updateStats();
+  });
+
+  darkToggle.addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark");
+    localStorage.setItem("darkMode", document.documentElement.classList.contains("dark") ? "enabled" : "disabled");
+  });
+
+  if (localStorage.getItem("darkMode") === "enabled") {
+    document.documentElement.classList.add("dark");
+  }
+
+  loadTasks();
+</script>
+
+</body>
+</html>
